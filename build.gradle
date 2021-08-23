@@ -1,0 +1,107 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
+    id 'org.jetbrains.kotlin.jvm' version '1.5.21'
+    id 'net.minecrell.licenser' version '0.4.1'
+}
+
+group = 'me.dkim19375'
+version = '1.0.0'
+
+//noinspection GroovyAssignabilityCheck
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+final basePackage = 'me.dkim19375.offlinecoins.libs'
+
+shadowJar {
+    relocate 'kotlin', "${basePackage}.kotlin"
+    relocate 'me.dkim19375.dkimcore', "${basePackage}.dkimcore"
+    relocate 'me.dkim19375.dkimbukkitcore', "${basePackage}.dkimbukkitcore"
+}
+
+license {
+    header = rootProject.file 'HEADER'
+    include '**/*.kt'
+}
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://jitpack.io' }
+    maven { url = 'https://repo.alessiodp.com/releases/' }
+    maven { url = 'https://repo.essentialsx.net/releases/' }
+    maven { url = 'https://repo.essentialsx.net/snapshots/' }
+    maven { url = 'https://repo.mattstudios.me/artifactory/public' }
+    maven { url = 'https://repo.codemc.org/repository/maven-public/' }
+    maven { url = 'https://repo.dmulloy2.net/nexus/repository/public/' }
+    maven { url = 'https://repo.onarandombox.com/content/groups/public/' }
+    maven { url = 'https://nexus.hc.to/content/repositories/pub_releases/' }
+    maven { url = 'https://oss.sonatype.org/content/repositories/releases/' }
+    maven { url = 'https://oss.sonatype.org/content/repositories/snapshots/' }
+    maven { url = 'https://s01.oss.sonatype.org/content/repositories/releases/' }
+    maven { url = 'https://s01.oss.sonatype.org/content/repositories/snapshots/' }
+    maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+    maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
+}
+
+dependencies {
+    compileOnly 'org.jetbrains:annotations:22.0.0'
+    compileOnly 'org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT'
+
+    implementation('io.github.dkim19375:dkim-bukkit-core:3.2.5') {
+        exclude group: 'org.jetbrains.kotlin'
+        exclude group: 'org.jetbrains.kotlinx'
+    }
+    implementation('org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.21') {
+        exclude module: 'annotations'
+    }
+    implementation fileTree('libs')
+}
+
+compileKotlin {
+    //noinspection GrUnresolvedAccess
+    kotlinOptions.jvmTarget = '1.8'
+}
+
+processResources {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    from(sourceSets.main.resources.srcDirs) {
+        expand 'pluginVersion': version
+    }
+}
+
+task removeBuildJars() {
+    new File('build/libs').delete()
+}
+
+final server = '1.16'
+
+task copyFile(type: Copy) {
+    if (!new File("../.TestServers/${server}/plugins/").exists()) {
+        return
+    }
+    new File("../.TestServers/${server}/plugins/${project.name}-${project.version}-all.jar").delete()
+    from("build/libs/${project.name}-${project.version}-all.jar")
+    into("../.TestServers/${server}/plugins")
+    include("*.jar")
+}
+
+task deleteAll() {
+    for (File file : new File('../.TestServers/1.17/plugins').listFiles()) {
+        if (file.name.startsWith(project.name)) {
+            file.delete()
+        }
+    }
+    for (File file : new File('../.TestServers/1.16/plugins').listFiles()) {
+        if (file.name.startsWith(project.name)) {
+            file.delete()
+        }
+    }
+    for (File file : new File('../.TestServers/1.8/plugins').listFiles()) {
+        if (file.name.startsWith(project.name)) {
+            file.delete()
+        }
+    }
+}
+
+shadowJar.dependsOn licenseFormat

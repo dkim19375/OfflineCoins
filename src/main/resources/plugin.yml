@@ -1,0 +1,7 @@
+main: me.dkim19375.offlinecoins.OfflineCoins
+description: Supports offline coins for CoinsAPI
+name: OfflineCoins
+version: ${pluginVersion}
+author: dkim19375
+depend:
+  - CoinsAPINB
