@@ -19,6 +19,7 @@
 package me.dkim19375.offlinecoins.listener
 
 import de.NeonnBukkit.CoinsAPI.API.CoinsAPI
+import me.dkim19375.dkimbukkitcore.function.logInfo
 import me.dkim19375.dkimbukkitcore.function.playSound
 import me.dkim19375.dkimcore.extension.containsIgnoreCase
 import me.dkim19375.offlinecoins.OfflineCoins
@@ -34,19 +35,19 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerCommandPreprocessEvent
+import org.bukkit.event.server.RemoteServerCommandEvent
 import org.bukkit.event.server.ServerCommandEvent
 
 class CommandListeners(private val plugin: OfflineCoins) : Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    private fun ServerCommandEvent.onCommand() {
-        onPreCmdEvent(command, sender, this)
-    }
+    private fun RemoteServerCommandEvent.onCommand() = onPreCmdEvent(command, sender, this)
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    private fun PlayerCommandPreprocessEvent.onCommand() {
-        onPreCmdEvent(message.removePrefix("/"), player, this)
-    }
+    private fun ServerCommandEvent.onCommand() = onPreCmdEvent(command, sender, this)
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    private fun PlayerCommandPreprocessEvent.onCommand() = onPreCmdEvent(message.removePrefix("/"), player, this)
 
     private fun onPreCmdEvent(command: String, sender: CommandSender, event: Cancellable) {
         val args = command.trim().split(" ")
